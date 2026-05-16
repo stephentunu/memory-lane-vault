@@ -80,8 +80,8 @@ const AddMemoryModal: React.FC<AddMemoryModalProps> = ({ open, onClose, onSaved,
       let fileSize: number | undefined;
       let fileMimeType: string | undefined;
 
-      if (file && type !== 'poem') {
-        const bucket = type === 'video' ? 'videos' : 'photos';
+      if (file) {
+        const bucket = type === 'video' ? 'videos' : type === 'photo' ? 'photos' : 'poems';
         const itemId = crypto.randomUUID();
         const path = `${user.id}/${itemId}/${file.name}`;
         await uploadFile(bucket, path, file);
@@ -96,7 +96,7 @@ const AddMemoryModal: React.FC<AddMemoryModalProps> = ({ open, onClose, onSaved,
         type,
         title: title.trim(),
         description: description.trim() || null,
-        content: type === 'poem' ? content : null,
+        content: null,
         file_path: filePath || null,
         file_name: fileName || null,
         file_size: fileSize || null,
