@@ -80,8 +80,8 @@ const AddMemoryModal: React.FC<AddMemoryModalProps> = ({ open, onClose, onSaved,
       let fileSize: number | undefined;
       let fileMimeType: string | undefined;
 
-      if (file && type !== 'poem') {
-        const bucket = type === 'video' ? 'videos' : 'photos';
+      if (file) {
+        const bucket = type === 'video' ? 'videos' : type === 'photo' ? 'photos' : 'poems';
         const itemId = crypto.randomUUID();
         const path = `${user.id}/${itemId}/${file.name}`;
         await uploadFile(bucket, path, file);
@@ -96,7 +96,7 @@ const AddMemoryModal: React.FC<AddMemoryModalProps> = ({ open, onClose, onSaved,
         type,
         title: title.trim(),
         description: description.trim() || null,
-        content: type === 'poem' ? content : null,
+        content: null,
         file_path: filePath || null,
         file_name: fileName || null,
         file_size: fileSize || null,
@@ -191,81 +191,71 @@ const AddMemoryModal: React.FC<AddMemoryModalProps> = ({ open, onClose, onSaved,
             />
           </div>
 
-          {/* File upload (video/photo) */}
-          {type !== 'poem' && (
-            <div>
-              <label className="font-mono-label text-[10px] tracking-[0.12em] uppercase block mb-2" style={{ color: 'var(--muted-text)' }}>File</label>
-              {!filePreview ? (
-                <div
-                  className="relative rounded-lg p-9 text-center transition-all cursor-pointer"
-                  style={{
-                    border: dragOver ? '2px dashed var(--gold)' : '2px dashed var(--bdr2)',
-                    background: dragOver ? 'var(--gold-dim)' : 'var(--sur)',
-                  }}
-                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <input ref={fileInputRef} type="file" className="hidden"
-                    accept={type === 'video' ? 'video/*' : 'image/*'}
-                    onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }}
-                  />
-                  <div className="text-3xl mb-2">☁</div>
-                  <p className="font-body text-sm" style={{ color: 'var(--txt2)' }}>
-                    Click to <span style={{ color: 'var(--gold)' }}>upload</span> or drag & drop
-                  </p>
-                  <p className="font-mono-label text-[10px] mt-2" style={{ color: 'var(--muted-text)' }}>
-                    {type === 'video' ? 'MP4 · MOV · AVI · MKV · WEBM' : 'JPG · PNG · GIF · WEBP · AVIF · SVG'}
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  {uploadProgress < 100 && (
-                    <div className="rounded-lg p-3.5" style={{ background: 'var(--sur2)' }}>
-                      <p className="font-body text-xs truncate" style={{ color: 'var(--txt2)' }}>{file?.name}</p>
-                      <div className="h-[3px] rounded-full mt-2" style={{ background: 'var(--bg3)' }}>
-                        <div className="h-full rounded-full transition-all" style={{ width: `${uploadProgress}%`, background: 'linear-gradient(90deg, var(--gold), var(--gold2))' }} />
-                      </div>
-                      <div className="flex justify-between mt-1.5">
-                        <span className="font-mono-label text-[9px]" style={{ color: 'var(--muted-text)' }}>{uploadProgress}%</span>
-                        <span className="font-mono-label text-[9px]" style={{ color: 'var(--muted-text)' }}>{file ? formatSize(file.size) : ''}</span>
-                      </div>
+          {/* File upload (all types) */}
+          <div>
+            <label className="font-mono-label text-[10px] tracking-[0.12em] uppercase block mb-2" style={{ color: 'var(--muted-text)' }}>File</label>
+            {!filePreview && !file ? (
+              <div
+                className="relative rounded-lg p-9 text-center transition-all cursor-pointer"
+                style={{
+                  border: dragOver ? '2px dashed var(--gold)' : '2px dashed var(--bdr2)',
+                  background: dragOver ? 'var(--gold-dim)' : 'var(--sur)',
+                }}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input ref={fileInputRef} type="file" className="hidden"
+                  accept={type === 'video' ? 'video/*' : type === 'photo' ? 'image/*' : '.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'}
+                  onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }}
+                />
+                <div className="text-3xl mb-2">☁</div>
+                <p className="font-body text-sm" style={{ color: 'var(--txt2)' }}>
+                  Click to <span style={{ color: 'var(--gold)' }}>upload</span> or drag & drop
+                </p>
+                <p className="font-mono-label text-[10px] mt-2" style={{ color: 'var(--muted-text)' }}>
+                  {type === 'video' ? 'MP4 · MOV · AVI · MKV · WEBM' : type === 'photo' ? 'JPG · PNG · GIF · WEBP · AVIF · SVG' : 'PDF · DOC · DOCX'}
+                </p>
+              </div>
+            ) : (
+              <div>
+                {uploadProgress < 100 && (
+                  <div className="rounded-lg p-3.5" style={{ background: 'var(--sur2)' }}>
+                    <p className="font-body text-xs truncate" style={{ color: 'var(--txt2)' }}>{file?.name}</p>
+                    <div className="h-[3px] rounded-full mt-2" style={{ background: 'var(--bg3)' }}>
+                      <div className="h-full rounded-full transition-all" style={{ width: `${uploadProgress}%`, background: 'linear-gradient(90deg, var(--gold), var(--gold2))' }} />
                     </div>
-                  )}
-                  {uploadProgress >= 100 && (
-                    <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bdr2)', background: 'var(--bg3)' }}>
-                      {type === 'video' ? (
-                        <video src={filePreview} controls className="w-full max-h-[190px]" style={{ background: '#000' }} />
-                      ) : (
-                        <img src={filePreview} alt="preview" className="w-full max-h-[190px] object-cover" />
-                      )}
-                      <div className="flex items-center px-3 py-2 gap-2">
-                        <span className="flex-1 truncate font-body text-xs" style={{ color: 'var(--txt2)' }}>{file?.name}</span>
-                        <span className="font-mono-label text-[10px] shrink-0" style={{ color: 'var(--muted-text)' }}>{file ? formatSize(file.size) : ''}</span>
-                        <button onClick={() => { setFile(null); setFilePreview(null); }} className="ml-1 text-sm transition-colors hover:opacity-80" style={{ color: 'var(--error)' }}>✕</button>
-                      </div>
+                    <div className="flex justify-between mt-1.5">
+                      <span className="font-mono-label text-[9px]" style={{ color: 'var(--muted-text)' }}>{uploadProgress}%</span>
+                      <span className="font-mono-label text-[9px]" style={{ color: 'var(--muted-text)' }}>{file ? formatSize(file.size) : ''}</span>
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Poem content */}
-          {type === 'poem' && (
-            <div>
-              <label className="font-mono-label text-[10px] tracking-[0.12em] uppercase block mb-2" style={{ color: 'var(--muted-text)' }}>Poem</label>
-              <textarea
-                value={content} onChange={(e) => setContent(e.target.value)}
-                className="w-full rounded-lg px-3 py-2.5 font-display text-base italic outline-none transition-all resize-vertical"
-                style={{ background: 'var(--sur)', border: '1px solid var(--bdr2)', color: 'var(--txt)', lineHeight: 2, minHeight: 220 }}
-                onFocus={(e) => { e.target.style.borderColor = 'var(--gold)'; }}
-                onBlur={(e) => { e.target.style.borderColor = 'var(--bdr2)'; }}
-                placeholder="Write your poem here...&#10;&#10;Let the words flow like water,&#10;Through the channels of your heart..."
-              />
-            </div>
-          )}
+                  </div>
+                )}
+                {uploadProgress >= 100 && (
+                  <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--bdr2)', background: 'var(--bg3)' }}>
+                    {type === 'video' ? (
+                      <video src={filePreview!} controls className="w-full max-h-[190px]" style={{ background: '#000' }} />
+                    ) : type === 'photo' ? (
+                      <img src={filePreview!} alt="preview" className="w-full max-h-[190px] object-cover" />
+                    ) : (
+                      <div className="flex items-center justify-center p-6" style={{ background: 'var(--bg3)' }}>
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">📄</div>
+                          <p className="font-body text-xs" style={{ color: 'var(--txt2)' }}>{file?.name}</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center px-3 py-2 gap-2">
+                      <span className="flex-1 truncate font-body text-xs" style={{ color: 'var(--txt2)' }}>{file?.name}</span>
+                      <span className="font-mono-label text-[10px] shrink-0" style={{ color: 'var(--muted-text)' }}>{file ? formatSize(file.size) : ''}</span>
+                      <button onClick={() => { setFile(null); setFilePreview(null); setUploadProgress(0); }} className="ml-1 text-sm transition-colors hover:opacity-80" style={{ color: 'var(--error)' }}>✕</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Tags & Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

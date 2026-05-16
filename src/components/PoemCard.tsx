@@ -30,12 +30,19 @@ const PoemCard: React.FC<PoemCardProps> = ({ item, onClick, onToggleFav, onDelet
 
       <h3 className="font-display text-[19px] italic" style={{ color: 'var(--cream)' }}>{item.title}</h3>
 
-      <p
-        className="font-display text-sm italic mt-3 whitespace-pre-wrap"
-        style={{ color: 'var(--txt2)', lineHeight: 1.85, display: '-webkit-box', WebkitLineClamp: 5, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-      >
-        {item.content}
-      </p>
+      {item.file_name ? (
+        <div className="flex items-center gap-2 mt-3 rounded-lg p-3" style={{ background: 'var(--bg3)', border: '1px solid var(--bdr)' }}>
+          <span className="text-2xl">📄</span>
+          <span className="font-body text-xs truncate" style={{ color: 'var(--txt2)' }}>{item.file_name}</span>
+        </div>
+      ) : (
+        <p
+          className="font-display text-sm italic mt-3 whitespace-pre-wrap"
+          style={{ color: 'var(--txt2)', lineHeight: 1.85, display: '-webkit-box', WebkitLineClamp: 5, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+        >
+          {item.content}
+        </p>
+      )}
 
       <div className="flex items-center justify-between mt-4">
         <span className="font-mono-label text-[10px]" style={{ color: 'var(--muted-text)' }}>
