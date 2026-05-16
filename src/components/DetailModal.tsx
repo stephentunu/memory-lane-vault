@@ -18,7 +18,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ item, open, onClose, onUpdate
 
   useEffect(() => {
     if (item?.file_path) {
-      const bucket = item.type === 'video' ? 'videos' : 'photos';
+      const bucket = item.type === 'video' ? 'videos' : item.type === 'photo' ? 'photos' : 'poems';
       getSignedUrl(bucket, item.file_path).then(setMediaUrl).catch(() => setMediaUrl(null));
     } else {
       setMediaUrl(null);
