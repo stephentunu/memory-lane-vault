@@ -72,7 +72,19 @@ const DetailModal: React.FC<DetailModalProps> = ({ item, open, onClose, onUpdate
           {item.type === 'photo' && mediaUrl && (
             <img src={mediaUrl} alt={item.title} className="w-full max-h-[420px] object-contain rounded-lg mb-5" style={{ background: 'var(--bg3)' }} />
           )}
-          {item.type === 'poem' && item.content && (
+          {item.type === 'poem' && mediaUrl && item.file_mime_type === 'application/pdf' && (
+            <iframe src={mediaUrl} title={item.title} className="w-full rounded-lg mb-5" style={{ height: 520, background: 'var(--bg3)', borderLeft: '3px solid var(--poem-primary)' }} />
+          )}
+          {item.type === 'poem' && mediaUrl && item.file_mime_type !== 'application/pdf' && (
+            <div className="rounded-lg p-5 mb-5 flex items-center gap-4" style={{ background: 'var(--bg3)', borderLeft: '3px solid var(--poem-primary)' }}>
+              <span className="text-4xl">📄</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-body text-sm truncate" style={{ color: 'var(--cream)' }}>{item.file_name}</p>
+                <a href={mediaUrl} target="_blank" rel="noopener noreferrer" download={item.file_name ?? undefined} className="font-mono-label text-[11px] underline" style={{ color: 'var(--gold)' }}>Download document</a>
+              </div>
+            </div>
+          )}
+          {item.type === 'poem' && !item.file_path && item.content && (
             <div className="rounded-lg p-5 mb-5 whitespace-pre-wrap" style={{ background: 'var(--bg3)', borderLeft: '3px solid var(--poem-primary)' }}>
               <p className="font-display text-[17px] italic" style={{ color: 'var(--cream)', lineHeight: 2.1 }}>{item.content}</p>
             </div>
