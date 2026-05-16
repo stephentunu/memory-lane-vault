@@ -38,7 +38,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ item, open, onClose, onUpdate
     setDeleting(true);
     try {
       if (item.file_path) {
-        const bucket = item.type === 'video' ? 'videos' : 'photos';
+        const bucket = item.type === 'video' ? 'videos' : item.type === 'photo' ? 'photos' : 'poems';
         await deleteFile(bucket, item.file_path);
       }
       await deleteMediaItem(item.id);
